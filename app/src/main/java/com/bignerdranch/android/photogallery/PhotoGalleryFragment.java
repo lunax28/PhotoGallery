@@ -1,5 +1,8 @@
 package com.bignerdranch.android.photogallery;
 
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -28,6 +31,7 @@ import java.util.List;
  */
 
 public class PhotoGalleryFragment extends Fragment {
+    final int JOB_ID = 1;
     private RecyclerView mPhotoRecyclerView;
     private List<GalleryItem> mItems = new ArrayList<>();
     private static final String TAG = "PhotoGalleryFragment";
@@ -238,8 +242,39 @@ public class PhotoGalleryFragment extends Fragment {
                 updateItems();
                 return true;
             case R.id.menu_item_toggle_polling:
-                boolean shouldStartAlarm = !PollService.isServiceAlarmOn(getActivity());
-                PollService.setServiceAlarm(getActivity(), shouldStartAlarm);
+                Log.d(TAG,"Clicked on menu_item_toggle_polling");
+                /*boolean shouldStartAlarm = !PollService.isServiceAlarmOn(getActivity());
+                PollService.setServiceAlarm(getActivity(), shouldStartAlarm);*/
+
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                    Log.d(TAG,"Checking device version...");
+                    JobScheduler jobScheduler = (JobScheduler) getActivity().getSystemService(Context.JOB_SCHEDULER_SERVICE);
+
+                    boolean hasBeenScheduled = false;
+                    for (JobInfo jobInfo : jobScheduler.getAllPendingJobs()) {
+                        if (jobInfo.getId() == JOB_ID) {
+                            hasBeenScheduled = true;
+                        }
+                    }
+
+                    if (!hasBeenScheduled) {
+                        Log.d(TAG,"Scheduling Job..");
+
+                        jobScheduler.schedule(new JobInfo.Builder(JOB_ID,
+                                new ComponentName(getActivity(), PollService.PollJobService.class))
+                                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
+                                .setPeriodic(1000 * 60 * 1)
+                                .setPersisted(true)
+                                .build());
+                    } else {
+                        Log.d(TAG,"jobScheduler.cancel(JOB_ID");
+                        jobScheduler.cancel(JOB_ID);
+                    }
+                } else {
+                    Log.d(TAG,"Not on LOLLIPOP!");
+                    boolean shouldStartAlarm = !PollService.isServiceAlarmOn(getActivity());
+                    PollService.setServiceAlarm(getActivity(), shouldStartAlarm);
+                }
                 getActivity().invalidateOptionsMenu();
                 return true;
             default:
