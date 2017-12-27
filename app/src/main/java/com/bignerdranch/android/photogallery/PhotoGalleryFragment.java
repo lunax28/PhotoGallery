@@ -4,6 +4,7 @@ import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -77,18 +78,21 @@ public class PhotoGalleryFragment extends VisibleFragment {
 
     }
 
-    private class PhotoHolder extends RecyclerView.ViewHolder {
+    private class PhotoHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         //        private TextView mTitleTextView;
         private ImageView mItemImageView;
+        private GalleryItem mGalleryItem;
 
         public PhotoHolder(View itemView) {
             super(itemView);
 
 //            mTitleTextView = (TextView) itemView;
             mItemImageView = (ImageView) itemView.findViewById(R.id.item_image_view);
+            itemView.setOnClickListener(this);
         }
 
         public void bindGalleryItem(GalleryItem galleryItem) {
+            mGalleryItem = galleryItem;
             //mTitleTextView.setText(item.toString());
 /*            Picasso.with(getActivity())
                     .load(galleryItem.getUrl())
@@ -98,6 +102,13 @@ public class PhotoGalleryFragment extends VisibleFragment {
                     .load(galleryItem.getUrl())
                     .into(mItemImageView);
 
+
+        }
+
+        @Override
+        public void onClick(View view) {
+            Intent i = new Intent(Intent.ACTION_VIEW, mGalleryItem.getPhotoPageUri());
+            startActivity(i);
 
         }
 
