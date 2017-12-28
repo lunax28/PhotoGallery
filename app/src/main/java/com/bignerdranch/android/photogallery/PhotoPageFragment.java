@@ -1,6 +1,7 @@
 package com.bignerdranch.android.photogallery;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -20,6 +21,11 @@ public class PhotoPageFragment extends VisibleFragment {
     private static final String ARG_URI = "photo_page_url";
     private Uri mUri;
     private WebView mWebView;
+    private Callbacks mCallbacks;
+
+    public interface Callbacks{
+        void addBrowsingHistory(WebView mWebView);
+    }
 
     private ProgressBar mProgressBar;
 
@@ -30,6 +36,18 @@ public class PhotoPageFragment extends VisibleFragment {
         PhotoPageFragment fragment = new PhotoPageFragment();
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mCallbacks = (Callbacks) context;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallbacks = null;
     }
 
     @Override
@@ -47,8 +65,9 @@ public class PhotoPageFragment extends VisibleFragment {
         mProgressBar = (ProgressBar) v.findViewById(R.id.progress_bar);
         mProgressBar.setMax(100);
 
-
         mWebView = (WebView) v.findViewById(R.id.web_view);
+        mCallbacks.addBrowsingHistory(mWebView);
+
         mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.setWebViewClient(new WebViewClient());
         mWebView.setWebChromeClient(new WebChromeClient() {
@@ -70,10 +89,6 @@ public class PhotoPageFragment extends VisibleFragment {
 
         return v;
     }
-
-
-
-
 
 
 
