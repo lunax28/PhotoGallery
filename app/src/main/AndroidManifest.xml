@@ -23,12 +23,17 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <activity android:name=".PhotoPageActivity"/>
+
         <service android:name=".PollService"
             android:permission="android.permission.BIND_JOB_SERVICE"
             android:exported="true"/>
+
         <service android:name=".PollService$PollJobService"
                  android:permission="android.permission.BIND_JOB_SERVICE"
                  android:exported="true"/>
+
         <receiver android:name=".StartupReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
